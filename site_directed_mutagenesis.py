@@ -36,8 +36,9 @@ def site_directed_mutagenesis(protocol, params):
 	dNTPs = protocol.ref("dNTPs", None, "micro-1.5", discard=True).well(0).set_volume("100:microliter")
 	oligo_forward = protocol.ref("oligo_forward", None, "micro-1.5", discard=True).well(0).set_volume("100:microliter")
 	oligo_reverse = protocol.ref("oligo_reverse", None, "micro-1.5", discard=True).well(0).set_volume("100:microliter")
-	protocol.transfer(mutagenesis_buffer10x, dntps, "50:microliter", allow_carryover=True)
+	
 
+	protocol.distribute(mutagenesis_mix, wells_to_mutagenize, "20:microliter", allow_carryover=True)
 	
 	protocol.seal(mutagenesis_plate)
 
@@ -55,4 +56,11 @@ def site_directed_mutagenesis(protocol, params):
 	], volume="25:microliter")
 
 	protocol.unseal(mutagenesis_plate)
+
+
+
+
+if __name__ == '__main__':
+    from autoprotocol.harness import run
+    run(site_directed_mutagenesis)
 
