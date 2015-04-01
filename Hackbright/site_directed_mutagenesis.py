@@ -1,6 +1,7 @@
 from autoprotocol.protocol import Protocol
 from internal.xpipette import xtransfer, xdistribute, dispense_target, distribute_target, aspirate_source, depth
 from autoprotocol.instruction import *
+from autoprotocol.unit import Unit
 import json
 
 # write a python script for site-directed mutagenesis
@@ -8,10 +9,7 @@ import json
 # should think about tooling to design QuikChange/mutagenesis oligos on our website
 
 # step 1: order mutant oligos, dilute to 100 uM
-
-
 # step 2: dilute mutant oligos to working stock 20 uM
-
 # step 3: Mutagenesis master mix containing 10X buffer, dNTPs, primers, QuikChange Multi enzyme blend
 # step 4: Distribute mutagenesis MM to 96 well PCR plate
 # step 5: Bravo LiHa DNA to 96 well PCR plate
@@ -35,8 +33,7 @@ mutagenesis_mm = p.ref("mutagenesis_mm", None, "micro-1.5", discard=True)
 dna_plate = p.ref("dna_plate", None, "96-pcr", storage="cold_20")
 enzyme_mm = p.ref("enzyme_mm", None, "micro-1.5", discard=True)
 
-
-p.distribute(mutagenesis_mm, mutagenesis_plate.all_wells(), "23:microliter", one_tip=True)
+p.distribute(mutagenesis_mm.well(0).set_volume("1000:microliter"), mutagenesis_plate.all_wells(), "2:microliter", allow_carryover=True)
 p.stamp(dna_plate, mutagenesis_plate, "2:microliter")
 
 p.seal(mutagenesis_plate)
@@ -51,14 +48,14 @@ p.thermocycle(mutagenesis_plate,
 			{"temperature": "65:celsius", "duration": "6:minute"}
 			]},  #2 min/kb of plasmid
 		{"cycles": 1, "steps": [
-			{"temperature": "12: celsius", "duration": "10:minute"}
+			{"temperature": "12:celsius", "duration": "10:minute"}
 		]}
 	])
 
 
 p.unseal(mutagenesis_plate)
 
-p.distribute(enzyme_mm, mutagenesis_plate.all_wells(), "2:microliter", one_tip=False)
+p.distribute(enzyme_mm.well(0).set_volume("300:microliter"), mutagenesis_plate.all_wells(), "2:microliter", allow_carryover=True)
 
 p.seal(mutagenesis_plate)
 
@@ -89,24 +86,6 @@ print json.dumps(p.as_dict(), indent=2)
 # 	protocol.distribute(mutagenesis_mm, wells_to_mutagenize, "20:microliter", allow_carryover=True)
 # 	for i, source_plasmid in enumerate(params.source_plasmid): protocol.transfer(source_plasmid, 
 # 			wells_to_mutagenize[i], "2:microliter", mix_after=False)
-	
-# 	protocol.seal(mutagenesis_plate)
-
-	# p.thermocycle(mutagenesis_plate,
-	# 	[{"cycles": 1, "steps": [
-	# 		{"temperature": "95:celsius", "duration": "1:minute"},
-	# 		]},
-	# 	{"cycles": 30, "steps": [
-	# 		{"temperature": "95:celsius", "duration": "1:minute"},
-	# 		{"temperature": "55:celsius", "duration": "1:minute"},
-	# 		{"temperature": "65:celsius", "duration": "6:minute"},  #2 min/kb of plasmid
-	# 	{"cycles": 1, "steps": [
-	# 		{"temperature": "12: celsius", "duration": "10:minute"},
-	# 	]},
-	# ], 
-# 		# volume = "25:microliter")
-
-# 	protocol.unseal(mutagenesis_plate)
 
 
 
